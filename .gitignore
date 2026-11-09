@@ -1,0 +1,3 @@
+
+# Non caricare su GitHub il db
+*.db
