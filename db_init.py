@@ -30,12 +30,11 @@ crea_tab_operatori = """ CREATE TABLE IF NOT EXISTS OPERATORE (
 # Tabella Tempo
 crea_tab_tempo = """ CREATE TABLE IF NOT EXISTS TEMPO (
                     ID_TEMPO TEXT PRIMARY KEY,
-                    DATA
-                    ORA
-                    GIORNO
-                    MESE
-                    ANNO
-                    GIORNO_SETTIMANA
+                    DATA DATE NOT NULL,
+                    GIORNO INTEGER NOT NULL,
+                    MESE INTEGER NOT NULL,
+                    ANNO INTEGER NOT NULL,
+                    GIORNO_SETTIMANA TEXT NOT NULL
                     )
                    """
 
@@ -46,6 +45,8 @@ crea_tab_richieste = """ CREATE TABLE IF NOT EXISTS RICHIESTA (
                         ID_FORNITORE TEXT NOT NULL,
                         ID_OPERATORE TEXT NOT NULL,
                         ID_TEMPO TEXT NOT NULL,
+                        DATA DATE NOT NULL,
+                        ORA TEXT NOT NULL,
                         IMPORTO REAL NOT NULL,
                         TEMPO_EROGAZIONE INTEGER NOT NULL,
                         STATO_RICHIESTA TEXT NOT NULL,
@@ -65,25 +66,28 @@ crea_tab_richieste = """ CREATE TABLE IF NOT EXISTS RICHIESTA (
 
 try:
     with sqlite3.connect("db/petcarens.db") as conn:
-        print(f"Aperta connesione db {sqlite3.sqlite_version}.")
+        # print(f"Aperta connesione db {sqlite3.sqlite_version}.") #Solo per test
 
-    cursor = conn.cursor()
+        cursor = conn.cursor()
 
-    cursor.execute(crea_tab_clienti)
-    print("Creata tab clienti")
-    cursor.execute(crea_tab_fornitori)
-    print("Creata tab fornitori")
-    cursor.execute(crea_tab_operatori)
-    print("Creata tab operatori")
-    cursor.execute(crea_tab_tempo)
-    print("Creata tab tempo")
-    cursor.execute(crea_tab_richieste)
-    print("Creata tab richieste")
+        # Necessario attivare le chiavi esterne, di default sono disabilitate
+        cursor.execute("PRAGMA foreign_keys = ON")
 
-    conn.commit()
+        cursor.execute(crea_tab_clienti)
+        print("Creata tab clienti")
+        cursor.execute(crea_tab_fornitori)
+        print("Creata tab fornitori")
+        cursor.execute(crea_tab_operatori)
+        print("Creata tab operatori")
+        cursor.execute(crea_tab_tempo)
+        print("Creata tab tempo")
+        cursor.execute(crea_tab_richieste)
+        print("Creata tab richieste")
 
+        conn.commit()
+        print("DB Inizializzato con successo")
     
 
 except sqlite3.OperationalError as sql3_err:
-    print("Failed to open database:", sql3_err)
+    print("Errore inizializzazione database:", sql3_err)
 
