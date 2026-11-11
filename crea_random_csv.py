@@ -2,7 +2,9 @@ import random # Per generazione numeri casuali
 
 import csv # Per gestione CSV
 
-import os # Per gestione cartelle
+import os # Per gestione directory
+
+import shutil # Per cancellazione directory
 
 from datetime import date, timedelta # Per generazione date casuali
 
@@ -73,7 +75,8 @@ lista_giorni = [ "Lunedì",
 
 # Creazione file csv
 def crea_csv(nome_file, lista_labels, lista_records):
-    with open(nome_file, "w", newline="", encoding="utf-8-sig") as f:
+    nome_file_dir = "csv/" + nome_file
+    with open(nome_file_dir, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(
             f,
             fieldnames=lista_labels,
@@ -86,8 +89,15 @@ def crea_csv(nome_file, lista_labels, lista_records):
 random.seed(24) # Numero di partenza sempre uguale per generare sempre gli stessi dati
 
 
-# Check e creazione cartella CSV se non presente
+# Inizializzazione directory csv (cancellazione + creazione)
+if os.path.exists("csv"):
+    shutil.rmtree("csv") # Cancella la directory ed il suo contenuto
 
+try:
+    os.mkdir("csv") # Crea directory, se esiste da exception
+    print("Creata directory csv")
+except FileExistsError:
+    print("La directory csv esiste già, nessuna creazione")
 
 ## Creazione dati random
 
@@ -117,6 +127,25 @@ def crea_fornitori(n):
     crea_csv("lista_fornitori.csv", lista_fornitori[0].keys(), lista_fornitori)
 
 # Creazione lista operatori
+def crea_operatori(n):
+    # ID_OPERATORE, ZONA, TIPO_ATTIVITA
+    lista_operatori = []
+
+    for i in range(1, n +1):
+        id_operatore = "OPER_" + str(i)
+        tipo_attivita = random.choice(lista_att_oper)
+
+        citta = list(lista_pesata_citta.keys())
+        pesi = list(lista_pesata_citta.values())
+        zona = random.choices(citta, weights = pesi, k = 1)
+
+        lista_operatori.append({
+            "ID_OPERATORE" : id_operatore,
+            "ZONA" : zona,
+            "TIPO_ATTIVITA" : tipo_attivita 
+        })
+
+    crea_csv("lista_operatori.csv", lista_operatori[0].keys(), lista_operatori)
 
 # Creazione lista tempo
 
@@ -125,3 +154,4 @@ def crea_fornitori(n):
 
 ## Main
 crea_fornitori(300)
+crea_operatori(300)

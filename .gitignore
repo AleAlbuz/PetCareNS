@@ -1,3 +1,4 @@
 
-# Non caricare su GitHub il db
+# Non caricare su GitHub file e directory create automaticamente dagli script
 *.db
+*.csv

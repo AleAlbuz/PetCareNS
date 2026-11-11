@@ -1,5 +1,9 @@
 import sqlite3 
 
+import os
+
+import shutil # Per cancellazione directory e file
+
 ## SQL Statements per creazione tabelle
 
 # Tabella Clienti
@@ -61,9 +65,18 @@ crea_tab_richieste = """ CREATE TABLE IF NOT EXISTS RICHIESTA (
                      )
                      """
 
+# Inizializzazione cartella db (cancellazione + creazione)
+
+if os.path.exists("db"):
+    shutil.rmtree("db") # Cancella la cartella db compreso il contenuto
+
+try:
+    os.mkdir("db") # Crea directory, se esiste da exception
+    print("Creata directory db")
+except FileExistsError:
+    print("La directory db esiste già, nessuna creazione")
 
 # Creazione e connesione al DB
-
 try:
     with sqlite3.connect("db/petcarens.db") as conn:
         # print(f"Aperta connesione db {sqlite3.sqlite_version}.") #Solo per test
@@ -85,7 +98,7 @@ try:
         print("Creata tab richieste")
 
         conn.commit()
-        print("DB Inizializzato con successo")
+        print("db/petcarens.db Inizializzato con successo")
     
 
 except sqlite3.OperationalError as sql3_err:
