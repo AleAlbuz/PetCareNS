@@ -51,6 +51,7 @@ crea_tab_richieste = """ CREATE TABLE IF NOT EXISTS RICHIESTA (
                         ID_TEMPO TEXT NOT NULL,
                         DATA DATE NOT NULL,
                         ORA TEXT NOT NULL,
+                        TIPO_ATTIVITA TEXT NOT NULL,
                         IMPORTO REAL NOT NULL,
                         TEMPO_EROGAZIONE INTEGER NOT NULL,
                         STATO_RICHIESTA TEXT NOT NULL,

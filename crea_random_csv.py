@@ -185,7 +185,7 @@ def crea_operatori(n):
 # Creazione lista richieste
 def crea_richieste(n, clienti, fornitori, operatori):
     # ID_RICHIESTA, ID_CLIENTE, ID_FORNITORE, ID_OPERATORE, ID_TEMPO, 
-    # DATA, ORA, IMPORTO, TEMPO_EROGAZIONE, STATO_RICHIESTA
+    # DATA, ORA, TIPO_ATTIVITA, IMPORTO, TEMPO_EROGAZIONE, STATO_RICHIESTA
     lista_richieste = []
 
     for i in range(1, n + 1):
@@ -222,6 +222,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
             # "ID_TEMPO" : "", # Verrà calcolato successivamente nello script ETL
             "DATA" : "",
             "ORA" : "",
+            "TIPO_ATTIVITA" : "",
             "TEMPO_EROGAZIONE" : "",
             "STATO_RICHIESTA" : ""
         })
