@@ -99,9 +99,38 @@ try:
 except FileExistsError:
     print("La directory csv esiste già, nessuna creazione")
 
+
 ## Creazione dati random
 
 # Creazione lista clienti
+def crea_clienti(n):
+    # ID_CLIENTE, ZONA, DATA_ISCRIZIONE
+    lista_clienti = []
+
+    # Clienti iscritti da quando è nata la startup 01.01.2024
+    today = date.today()
+    first_date = date(2024, 1, 1) 
+    delta_days = (today - first_date).days
+
+    for i in range(1, n +1):
+        id_cliente = "CLI_" + str(i)
+
+        citta = list(lista_pesata_citta.keys())
+        pesi = list(lista_pesata_citta.values())
+        zona = random.choices(citta, weights = pesi, k = 1)
+
+        days_to_add = random.randint(0, delta_days)
+        data_iscrizione = first_date + timedelta(days_to_add)
+
+        lista_clienti.append({
+            "ID_CLIENTE" : id_cliente,
+            "ZONA" : zona ,
+            "DATA_ISCRIZIONE" : data_iscrizione
+        })
+
+    crea_csv("lista_clienti.csv", lista_clienti[0].keys(), lista_clienti)
+
+    return lista_clienti
 
 # Creazione lista fornitori
 def crea_fornitori(n):
@@ -126,6 +155,9 @@ def crea_fornitori(n):
 
     crea_csv("lista_fornitori.csv", lista_fornitori[0].keys(), lista_fornitori)
 
+    return lista_fornitori
+
+
 # Creazione lista operatori
 def crea_operatori(n):
     # ID_OPERATORE, ZONA, TIPO_ATTIVITA
@@ -147,11 +179,59 @@ def crea_operatori(n):
 
     crea_csv("lista_operatori.csv", lista_operatori[0].keys(), lista_operatori)
 
-# Creazione lista tempo
+    return lista_operatori
+
 
 # Creazione lista richieste
+def crea_richieste(n, clienti, fornitori, operatori):
+    # ID_RICHIESTA, ID_CLIENTE, ID_FORNITORE, ID_OPERATORE, ID_TEMPO, 
+    # DATA, ORA, IMPORTO, TEMPO_EROGAZIONE, STATO_RICHIESTA
+    lista_richieste = []
+
+    for i in range(1, n + 1):
+    
+        id_richiesta = "RIC_" + str(i)
+
+        # Estrazione cliente che ha effettuato la richiesta
+        cli = random.choice(clienti)
+        id_cliente = cli[id_cliente]
+        zona = cli[zona]
+
+        # Estrazione fornitore della stessa zona ( se presente )
+        fornitori_zona = []
+        for forn in fornitori:
+            if forn[zona] == zona:
+                fornitori_zona.append(forn)
+        fornitore = random.choice(fornitori_zona)
+        id_fornitore = fornitori_zona[id_fornitore]
+
+        # Estrazione operatori della stessa zona (se presente )
+        operatori_zona = []
+        for oper in operatori:
+            if oper[zona] == zona:
+                operatori_zona.append(oper)
+        operatore = random.choice(operatori_zona)
+        id_operatore = operatori_zona[id_operatore]
+
+
+        lista_richieste.append({
+            "ID_RICHIESTA" : id_richiesta,
+            "ID_CLIENTE" : id_cliente,
+            "ID_FORNITORE" : id_fornitore,
+            "ID_OPERATORE" : id_operatore,
+            # "ID_TEMPO" : "", # Verrà calcolato successivamente nello script ETL
+            "DATA" : "",
+            "ORA" : "",
+            "TEMPO_EROGAZIONE" : "",
+            "STATO_RICHIESTA" : ""
+        })
+
+        crea_csv("lista_richieste.csv", lista_richieste[0].keys(), lista_richieste)
+
 
 
 ## Main
-crea_fornitori(300)
-crea_operatori(300)
+clienti_creati = crea_clienti(450)
+fornitori_creati = crea_fornitori(300)
+operatori_creati = crea_operatori(300)
+crea_richieste(600, clienti_creati, fornitori_creati, operatori_creati)
