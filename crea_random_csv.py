@@ -99,8 +99,8 @@ def crea_fornitori(n):
     lista_fornitori = []
 
     for i in range(1, n +1):
-        id_fornitore = "FORN_" + str(n)
-        nome =  "Nome_" + str(n) # Temporaneo
+        id_fornitore = "FORN_" + str(i)
+        nome =  "Nome_" + str(i) # Temporaneo
         categoria_servizio = random.choice(lista_categorie)
 
         citta = list(lista_pesata_citta.keys())
