@@ -38,39 +38,43 @@ lista_pesata_citta = {
 
 
 # CATEGORIA_SERVIZIO
-lista_categorie = [ "Toilettatura",
-                    "Visita veterinaria",
-                    "Cat sitting",
-                    "Dog walking",
-                    "Visita comportamentale",
-                    "Visita nutrizionistica" 
+lista_categorie = [ 
+    "Toilettatura",
+    "Visita veterinaria",
+    "Cat sitting",
+    "Dog walking",
+    "Visita comportamentale",
+    "Visita nutrizionistica" 
 ]
 
 # NOME (fornitore)
 # Da implementare
 
 # TIPO_ATTIVITA
-lista_att_oper = [  "Customer Care",
-                    "Responsabile Fornitori",
-                    "Responsabile Pagamenti",
-                    "Gestione richieste"
+lista_att_oper = [  
+    "Customer Care",
+    "Responsabile Fornitori",
+    "Responsabile Pagamenti",
+    "Gestione richieste"
 ]
 
 # STATO
-lista_stati_rich = [ "Nuova Richiesta",
-                     "Presa in carico",
-                     "Elaborata",
-                     "Annullata"
-]
+lista_stati_rich = { 
+    "Nuova Richiesta" : 2,
+    "Presa in carico" : 3,
+    "Elaborata" : 5,
+    "Annullata" : 1
+}
 
 # GIORNO_SETTIMANA
-lista_giorni = [ "Lunedì",
-                 "Martedì",
-                 "Mercoledì",
-                 "Giovedì",
-                 "Venerdì",
-                 "Sabato",
-                 "Domenica"
+lista_giorni = [ 
+    "Lunedì",
+    "Martedì",
+    "Mercoledì",
+    "Giovedì",
+    "Venerdì",
+    "Sabato",
+    "Domenica"
 ]
 
 # Creazione file csv
@@ -194,25 +198,33 @@ def crea_richieste(n, clienti, fornitori, operatori):
 
         # Estrazione cliente che ha effettuato la richiesta
         cli = random.choice(clienti)
-        id_cliente = cli[id_cliente]
-        zona = cli[zona]
+        id_cliente = cli["ID_CLIENTE"]
+        zona = cli["ZONA"]
 
         # Estrazione fornitore della stessa zona ( se presente )
         fornitori_zona = []
         for forn in fornitori:
-            if forn[zona] == zona:
+            if forn["ZONA"] == zona:
                 fornitori_zona.append(forn)
         fornitore = random.choice(fornitori_zona)
-        id_fornitore = fornitori_zona[id_fornitore]
+        id_fornitore = fornitore["ID_FORNITORE"]
+
+        # Per comodità recupero tipologia_richiesta 
+        # dalla categoria di servizio del fornitore estratto
+        tipo_richiesta = fornitore["CATEGORIA_SERVIZIO"]
 
         # Estrazione operatori della stessa zona (se presente )
         operatori_zona = []
         for oper in operatori:
-            if oper[zona] == zona:
+            if oper["ZONA"] == zona:
                 operatori_zona.append(oper)
         operatore = random.choice(operatori_zona)
-        id_operatore = operatori_zona[id_operatore]
+        id_operatore = operatori_zona["ID_OPERATORE"]
 
+        # Recupera stato richiesta dalla lista pesata
+        stati = list(lista_stati_rich.keys())
+        pesi_stati = list(lista_stati_rich.values())
+        stato_richiesta = random.choices(stati, weights = pesi_stati, k = 1)
 
         lista_richieste.append({
             "ID_RICHIESTA" : id_richiesta,
@@ -222,11 +234,11 @@ def crea_richieste(n, clienti, fornitori, operatori):
             # "ID_TEMPO" : "", # Verrà calcolato successivamente nello script ETL
             "DATA" : "",
             "ORA" : "",
-            "TIPO_RICHIESTA" : "",
+            "TIPO_RICHIESTA" : tipo_richiesta,
             "IMPORTO_FORNITORE" : "",
-            "RICAVO" : "",
+            # "RICAVO" : "", # Il ricavo verrà calcolato nello script ETL come % dell'importo pagato
             "TEMPO_EROGAZIONE" : "",
-            "STATO_RICHIESTA" : ""
+            "STATO_RICHIESTA" : stato_richiesta
         })
 
         crea_csv("lista_richieste.csv", lista_richieste[0].keys(), lista_richieste)
