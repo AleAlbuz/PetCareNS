@@ -19,7 +19,8 @@ crea_tab_fornitori = """ CREATE TABLE IF NOT EXISTS FORNITORE (
                         ID_FORNITORE TEXT PRIMARY KEY,
                         NOME TEXT NOT NULL,
                         CATEGORIA_SERVIZIO TEXT NOT NULL,
-                        ZONA TEXT NOT NULL
+                        ZONA TEXT NOT NULL,
+                        COSTO_ORARIO INTEGER NOT NULL
                      )
                      """
 
