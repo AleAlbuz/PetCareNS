@@ -150,7 +150,7 @@ def crea_fornitori(n):
     for i in range(1, n +1):
         id_fornitore = "FORN_" + str(i)
         nome =  "Nome_" + str(i) # Temporaneo
-        categoria_servizio = random.choice(lista_categorie.keys())
+        categoria_servizio = random.choice(list(lista_categorie.keys()))
 
         citta = list(lista_pesata_citta.keys())
         pesi = list(lista_pesata_citta.values())
@@ -249,7 +249,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
             if oper["ZONA"] == zona:
                 operatori_zona.append(oper)
         operatore = random.choice(operatori_zona)
-        id_operatore = operatori_zona["ID_OPERATORE"]
+        id_operatore = operatore["ID_OPERATORE"]
 
         # Recupera stato richiesta dalla lista pesata
         stati = list(lista_stati_rich.keys())
