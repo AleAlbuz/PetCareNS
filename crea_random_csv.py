@@ -115,20 +115,39 @@ except FileExistsError:
 
 ## Creazione dati random
 
+# Creazione lista zone
+def crea_lista_zone(n):
+    # Crea una lista di n zone assicurando di avere almeno 1 occorrenza per ogni zona presente nella lista
+    citta = list(lista_pesata_citta.keys())
+    pesi = list(lista_pesata_citta.values())
+
+    citta_distinct = citta.copy()
+    random.shuffle(citta_distinct) #Per avere anche le prime 20 occorrenze estratte sempre random
+
+    lista_zone = []
+
+    for i in range(1, n + 1):
+        if len(citta_distinct) > 0:
+            zona = citta_distinct.pop(0) # Estrae la prima città della lista
+        else:
+            zona = random.choices(citta, weights = pesi, k = 1)[0]
+
+        lista_zone.append(zona)
+    
+    return lista_zone
+
+
 # Creazione lista clienti
 def crea_clienti(n):
     # ID_CLIENTE, ZONA, DATA_ISCRIZIONE
     lista_clienti = []
+    lista_zone = crea_lista_zone(n)
 
-    # Clienti iscritti da quando è nata la startup 01.01.2024
-
-    for i in range(1, n +1):
+    for i in range(1, n + 1):
         id_cliente = "CLI_" + str(i)
+        zona = lista_zone.pop(0)
 
-        citta = list(lista_pesata_citta.keys())
-        pesi = list(lista_pesata_citta.values())
-        zona = random.choices(citta, weights = pesi, k = 1)
-
+        # Clienti iscritti da quando è nata la startup 01.01.2024
         days_to_add = random.randint(0, delta_days)
         data_iscrizione = first_date + timedelta(days_to_add)
 
@@ -146,15 +165,14 @@ def crea_clienti(n):
 def crea_fornitori(n):
     # ID_FORNITORE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO
     lista_fornitori = []
+    lista_zone = crea_lista_zone(n)
 
     for i in range(1, n +1):
         id_fornitore = "FORN_" + str(i)
         nome =  "Nome_" + str(i) # Temporaneo
         categoria_servizio = random.choice(list(lista_categorie.keys()))
 
-        citta = list(lista_pesata_citta.keys())
-        pesi = list(lista_pesata_citta.values())
-        zona = random.choices(citta, weights = pesi, k = 1)
+        zona = lista_zone.pop(0)
 
         # Calcolo costo orario
         dati_categoria = lista_categorie[categoria_servizio]
@@ -178,14 +196,13 @@ def crea_fornitori(n):
 def crea_operatori(n):
     # ID_OPERATORE, ZONA, TIPO_ATTIVITA
     lista_operatori = []
+    lista_zone = crea_lista_zone(n)
 
     for i in range(1, n +1):
         id_operatore = "OPER_" + str(i)
         tipo_attivita = random.choice(lista_att_oper)
 
-        citta = list(lista_pesata_citta.keys())
-        pesi = list(lista_pesata_citta.values())
-        zona = random.choices(citta, weights = pesi, k = 1)
+        zona = lista_zone.pop(0)
 
         lista_operatori.append({
             "ID_OPERATORE" : id_operatore,
@@ -254,7 +271,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
         # Recupera stato richiesta dalla lista pesata
         stati = list(lista_stati_rich.keys())
         pesi_stati = list(lista_stati_rich.values())
-        stato_richiesta = random.choices(stati, weights = pesi_stati, k = 1)
+        stato_richiesta = random.choices(stati, weights = pesi_stati, k = 1)[0]
 
         lista_richieste.append({
             "ID_RICHIESTA" : id_richiesta,
@@ -271,7 +288,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
             "STATO_RICHIESTA" : stato_richiesta
         })
 
-        crea_csv("lista_richieste.csv", lista_richieste[0].keys(), lista_richieste)
+    crea_csv("lista_richieste.csv", lista_richieste[0].keys(), lista_richieste)
 
 
 
