@@ -67,16 +67,6 @@ lista_stati_rich = {
     "Annullata" : 1
 }
 
-# GIORNO_SETTIMANA
-lista_giorni = [ 
-    "Lunedì",
-    "Martedì",
-    "Mercoledì",
-    "Giovedì",
-    "Venerdì",
-    "Sabato",
-    "Domenica"
-]
 
 # Orizzonte temporale per iscrizione clienti e data richieste
 today = date.today()
@@ -259,6 +249,9 @@ def crea_richieste(n, clienti, fornitori, operatori):
                               k = 1
                             )[0]
 
+        # Salvataggio data in formato "errato" dd/mm/yyyy 
+        # in modo che lo script ETL possa pulirla e salvarla in tabella nel formato corretto
+        data = data.strftime("%d/%m/%Y")
 
         # Estrazione operatori della stessa zona (se presente )
         operatori_zona = []
