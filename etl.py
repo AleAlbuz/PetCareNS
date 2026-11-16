@@ -6,6 +6,27 @@ from datetime import datetime
 import re
 
 
+## SQL Statements per caricamento tabelle
+
+# Tabella Clienti
+carica_tab_clienti = """ INSERT INTO CLIENTE (
+                    ID_CLIENTE, ZONA TEXT, DATA_ISCRIZIONE)
+                    VALUES(?,?,?)
+                   """
+# Tabella fornitori
+carica_tab_fornitori = """ INSERT INTO FORNITORE (
+                    ID_FORNITORE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO)
+                    VALUES(?,?,?,?,?)
+                   """
+
+# Tabella operatori
+carica_tab_operatori = """ INSERT INTO OPERATORE (
+                    ID_OPERATORE, ZONA, TIPO_ATTIVITA)
+                    VALUES(?,?,?)
+                   """
+
+
+
 # GIORNO_SETTIMANA
 lista_giorni = [ 
     "Lunedì",
@@ -43,6 +64,7 @@ def check_testo(testo_in):
 
     # Rimuove eventuali spazi di troppo
     testo_out = testo_out.strip()
+    testo_out = testo_out.upper()
 
     return testo_out
 
@@ -56,6 +78,15 @@ def check_data(data_in):
 
     return data_out
 
+def check_numero_real(numero_in):
+    numero_out = 0.00
+
+    if re.fullmatch(r"\d+(,\d+)?", numero_in):
+        numero_out = float(numero_in.replace(",", "."))
+    # Gestire errore
+
+    return numero_out
+    
 
 def trasforma_clienti(clienti_in):
     # ID_CLIENTE, ZONA, DATA_ISCRIZIONE
@@ -65,9 +96,70 @@ def trasforma_clienti(clienti_in):
         id_cliente_out = check_testo(clienti_in["ID_CLIENTE"]) 
         zona_out = check_testo(clienti_in["ZONA"])
         data_iscrizione_out = check_data(clienti_in["DATA_ISCRIZIONE"])
-
+        
+        clienti_out.append({
+            "ID_CLIENTE" : id_cliente_out,
+            "ZONA" : zona_out,
+            "DATA_ISCRIZIONE" : data_iscrizione_out
+        })
+        
     return clienti_out
 
+
+def carica_tab(nome_tabella, sql_statement, lista_records):
+
+    # Creazione e connesione al DB
+    try:
+        with sqlite3.connect("db/petcarens.db") as conn:
+            cursor = conn.cursor()
+
+            cursor.executemany(sql_statement, lista_records)
+
+            conn.commit()
+    
+    except sqlite3.OperationalError as sql3_err:
+        print(f"Errore caricamento tabella: {nome_tabella}. ", sql3_err)
+
+
+    
+def trasforma_fornitori(fornitori_in):
+    # ID_FORNITORE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO
+    fornitori_out = []
+
+    for fornitori in fornitori_in:
+        id_fornitore_Out = check_testo(fornitori_in["ID_FORNITORE"]) 
+        nome_out = check_testo(fornitori_in["NOME"]) 
+        categoria_servizio_out = check_testo(fornitori_in["CATEGORIA_SERVIZIO"]) 
+        zona_out = check_testo(fornitori_in["ZONA"])
+        costo_orario_out = check_numero_real(fornitori_in["COSTO_ORARIO"])
+
+        fornitori_out.append({
+            "ID_FORNITORE" : id_fornitore_Out,
+            "NOME" : nome_out,
+            "CATEGORIA_SERVIZIO" : categoria_servizio_out,
+            "ZONA" : zona_out,
+            "COSTO_ORARIO" : costo_orario_out
+        })
+
+    return fornitori_out 
+
+
+def trasforma_operatori(operatori_in):
+    # ID_OPERATORE, ZONA, TIPO_ATTIVITA
+    operatori_out = []
+
+    for operatori in operatori_in:
+        id_operatore_Out = check_testo(operatori_in["ID_OPERATORE"]) 
+        zona_out = check_testo(operatori_in["ZONA"]) 
+        tipo_attivita_out = check_testo(operatori_in["TIPO_ATTIVITA"]) 
+        
+        operatori_out.append({
+            "ID_FORNITORE" : id_operatore_Out,
+            "ZONA" : zona_out,
+            "TIPO_ATTIVITA" : tipo_attivita_out
+        })
+
+    return operatori_out
 
 
 def etl_clienti():
@@ -81,8 +173,8 @@ def etl_clienti():
 # Trasformazione
     lista_clienti_t = trasforma_clienti(lista_clienti)
 
-
 # Caricamento
+    carica_tab("CLIENTE", carica_tab_clienti, lista_clienti_t)
 
 
 def etl_fornitori():
@@ -94,9 +186,10 @@ def etl_fornitori():
     lista_fornitori = leggi_csv("lista_fornitori.csv")
 
 # Trasformazione
-
+    lista_fornitori_t = trasforma_fornitori(lista_fornitori)
 
 # Caricamento
+    carica_tab("FORNITORE", carica_tab_fornitori, lista_fornitori_t)
 
 
 def etl_operatori():
@@ -108,9 +201,11 @@ def etl_operatori():
     lista_operatori = leggi_csv("lista_operatori.csv")
 
 # Trasformazione
+    lista_operatori_t = trasforma_operatori(lista_operatori)
 
 
 # Caricamento
+    carica_tab("OPERATORE", carica_tab_operatori, lista_operatori_t)
 
 
 def etl_richieste():

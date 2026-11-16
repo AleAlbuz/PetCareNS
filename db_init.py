@@ -7,7 +7,7 @@ import shutil # Per cancellazione directory e file
 ## SQL Statements per creazione tabelle
 
 # Tabella Clienti
-crea_tab_clienti = """ CREATE TABLE IF NOT EXISTS cliente (
+crea_tab_clienti = """ CREATE TABLE IF NOT EXISTS CLIENTE (
                     ID_CLIENTE TEXT PRIMARY KEY,
                     ZONA TEXT NOT NULL,
                     DATA_ISCRIZIONE TEXT NOT NULL
@@ -20,7 +20,7 @@ crea_tab_fornitori = """ CREATE TABLE IF NOT EXISTS FORNITORE (
                         NOME TEXT NOT NULL,
                         CATEGORIA_SERVIZIO TEXT NOT NULL,
                         ZONA TEXT NOT NULL,
-                        COSTO_ORARIO INTEGER NOT NULL
+                        COSTO_ORARIO REAL NOT NULL
                      )
                      """
 
