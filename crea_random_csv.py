@@ -61,9 +61,9 @@ lista_att_oper = [
 
 # STATO
 lista_stati_rich = { 
-    "Nuova Richiesta" : 2,
-    "Presa in carico" : 3,
-    "Elaborata" : 5,
+    "Nuova Richiesta" : 1,
+    "Presa in carico" : 5,
+    "Elaborata" : 20,
     "Annullata" : 1
 }
 
@@ -71,7 +71,7 @@ lista_stati_rich = {
 # Orizzonte temporale per iscrizione clienti e data richieste
 today = date.today()
 last_date = today - timedelta(days = 1)
-first_date = date(2024, 1, 1) 
+first_date = date(2025, 11, 1) 
 delta_days = (today - first_date).days
 total_days = ( last_date - first_date ).days
 
@@ -137,9 +137,13 @@ def crea_clienti(n):
         id_cliente = "CLI_" + str(i)
         zona = lista_zone.pop(0)
 
-        # Clienti iscritti da quando è nata la startup 01.01.2024
+        # Clienti iscritti da quando è nata la startup
         days_to_add = random.randint(0, delta_days)
         data_iscrizione = first_date + timedelta(days_to_add)
+
+        # Salvataggio data in formato "errato" dd/mm/yyyy 
+        # in modo che lo script ETL possa pulirla e salvarla in tabella nel formato corretto
+        data_iscrizione = data_iscrizione.strftime("%d/%m/%Y")
 
         lista_clienti.append({
             "ID_CLIENTE" : id_cliente,
@@ -167,7 +171,7 @@ def crea_fornitori(n):
         # Calcolo costo orario
         dati_categoria = lista_categorie[categoria_servizio]
         costo_orario_min, costo_orario_max = dati_categoria["costo_orario"]
-        costo_orario = round(random.uniform(costo_orario_min, costo_orario_max),2)
+        costo_orario = round(random.uniform(costo_orario_min, costo_orario_max))
 
         lista_fornitori.append({
             "ID_FORNITORE" : id_fornitore,
@@ -235,7 +239,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
         t_erogazione_min, t_erogazione_max = dati_categoria["tempo_erogazione"]
         tempo_erogazione = random.randint(t_erogazione_min, t_erogazione_max)
         costo_orario = fornitore["COSTO_ORARIO"]
-        importo_fornitore = ( costo_orario / 60 ) * tempo_erogazione
+        importo_fornitore = round(( costo_orario / 60 ) * tempo_erogazione)
 
         # Generazione data casuale con più probabilità negli orari lavorativi per il cliente (9-18)
         # Nessuna richiesta tra le 22 e le 6 del mattino
