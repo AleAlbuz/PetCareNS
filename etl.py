@@ -79,13 +79,27 @@ def check_data(data_in):
     return data_out
 
 def check_numero_real(numero_in):
-    numero_out = 0.00
+     
+    numero_string = numero_in.strip()
+    numero_string.replace(",", ".")
+    try:
+        if re.fullmatch(r"\d+(,\d+)?", numero_string):
+            numero_out = float(numero_string)
+            return numero_out
+    except ValueError:
+        return "Errore: numero " + f"{numero_in}" + " non valido"
 
-    if re.fullmatch(r"\d+(,\d+)?", numero_in):
-        numero_out = float(numero_in.replace(",", "."))
-    # Gestire errore
+    
 
-    return numero_out
+def check_numero_int(numero_in):
+    numero_string = numero_in.strip()
+    numero_string.replace(",", ".")
+
+    try:
+        numero_out = float(numero_string)
+        return int(numero_out)
+    except ValueError:
+        return "Errore: numero " + f"{numero_in}" + " non intero"
     
 
 def trasforma_clienti(clienti_in):
@@ -93,9 +107,9 @@ def trasforma_clienti(clienti_in):
     clienti_out = []
 
     for cliente in clienti_in:
-        id_cliente_out = check_testo(clienti_in["ID_CLIENTE"]) 
-        zona_out = check_testo(clienti_in["ZONA"])
-        data_iscrizione_out = check_data(clienti_in["DATA_ISCRIZIONE"])
+        id_cliente_out = check_testo(cliente["ID_CLIENTE"]) 
+        zona_out = check_testo(cliente["ZONA"])
+        data_iscrizione_out = check_data(cliente["DATA_ISCRIZIONE"])
         
         clienti_out.append({
             "ID_CLIENTE" : id_cliente_out,
@@ -127,11 +141,11 @@ def trasforma_fornitori(fornitori_in):
     fornitori_out = []
 
     for fornitori in fornitori_in:
-        id_fornitore_Out = check_testo(fornitori_in["ID_FORNITORE"]) 
-        nome_out = check_testo(fornitori_in["NOME"]) 
-        categoria_servizio_out = check_testo(fornitori_in["CATEGORIA_SERVIZIO"]) 
-        zona_out = check_testo(fornitori_in["ZONA"])
-        costo_orario_out = check_numero_real(fornitori_in["COSTO_ORARIO"])
+        id_fornitore_Out = check_testo(fornitori["ID_FORNITORE"]) 
+        nome_out = check_testo(fornitori["NOME"]) 
+        categoria_servizio_out = check_testo(fornitori["CATEGORIA_SERVIZIO"]) 
+        zona_out = check_testo(fornitori["ZONA"])
+        costo_orario_out = check_numero_real(fornitori["COSTO_ORARIO"])
 
         fornitori_out.append({
             "ID_FORNITORE" : id_fornitore_Out,
@@ -149,9 +163,9 @@ def trasforma_operatori(operatori_in):
     operatori_out = []
 
     for operatori in operatori_in:
-        id_operatore_Out = check_testo(operatori_in["ID_OPERATORE"]) 
-        zona_out = check_testo(operatori_in["ZONA"]) 
-        tipo_attivita_out = check_testo(operatori_in["TIPO_ATTIVITA"]) 
+        id_operatore_Out = check_testo(operatori["ID_OPERATORE"]) 
+        zona_out = check_testo(operatori["ZONA"]) 
+        tipo_attivita_out = check_testo(operatori["TIPO_ATTIVITA"]) 
         
         operatori_out.append({
             "ID_FORNITORE" : id_operatore_Out,
@@ -160,6 +174,60 @@ def trasforma_operatori(operatori_in):
         })
 
     return operatori_out
+
+def get_id_tempo(richiesta_in):
+    id_tempo_out = ""
+
+    return id_tempo_out
+
+
+def get_ricavo(importo_fornitore_in):
+    ricavo_out = 0.00
+
+    #Il ricavo corrisponde al 20% dell'importo pagato al fornitore
+    ricavo_out = ( importo_fornitore_in * 20 ) / 100
+
+    return ricavo_out
+
+
+def trasforma_richieste(richieste_in):
+# "ID_RICHIESTA", "ID_CLIENTE", "ID_FORNITORE", "ID_OPERATORE", "ID_TEMPO", "DATA",
+# "ORA", "TIPO_RICHIESTA", "IMPORTO_FORNITORE", "RICAVO", "TEMPO_EROGAZIONE", "STATO_RICHIESTA"
+    richieste_out = []
+
+    for richiesta in richieste_in:
+        # ID
+        id_richiesta_out = check_testo(richiesta["ID_RICHIESTA"])
+        id_cliente_out = check_testo(richiesta["ID_CLIENTE"])
+        id_fornitore_out = check_testo(richiesta["ID_FORNITORE"])
+        id_operatore_out = check_testo(richiesta["ID_OPERATORE"])
+
+        # Gestione tempo
+        id_tempo_out = get_id_tempo(richiesta)
+        data_out = check_data(richiesta["DATA"])
+        ora_out = check_data(richiesta["ORA"])
+
+        tipo_richiesta_out = check_testo(richiesta["TIPO_RICHIESTA"])
+        importo_fornitore_out = check_numero_real(richiesta["IMPORTO_FORNITORE"])
+        ricavo_out = get_ricavo(importo_fornitore_out)
+        tempo_erogazione_out = check_numero_int(richiesta["TEMPO_EROGAZIONE"])
+        stato_richiesta_out = check_testo(richiesta["STATO_RICHIESTA"])
+        
+        richieste_out.append({
+            "ID_RICHIESTA" : id_richiesta_out,
+            "ID_CLIENTE" : id_cliente_out,
+            "ID_FORNITORE" : id_fornitore_out,
+            "ID_OPERATORE" : id_operatore_out,
+            "ID_TEMPO" : id_tempo_out,
+            "DATA" : data_out,
+            "ORA" : ora_out,
+            "TIPO_RICHIESTA" : tipo_richiesta_out, 	
+            "IMPORTO_FORNITORE" : importo_fornitore_out,
+            "RICAVO" : ricavo_out,
+            "TEMPO_EROGAZIONE" : tempo_erogazione_out,
+            "STATO_RICHIESTA" : stato_richiesta_out
+        })
+
 
 
 def etl_clienti():
@@ -180,14 +248,11 @@ def etl_clienti():
 def etl_fornitori():
     # ETL fornitori
     print("Avvio ETL per Fornitori")
-
 # Estrazione
     lista_fornitori = []
     lista_fornitori = leggi_csv("lista_fornitori.csv")
-
 # Trasformazione
     lista_fornitori_t = trasforma_fornitori(lista_fornitori)
-
 # Caricamento
     carica_tab("FORNITORE", carica_tab_fornitori, lista_fornitori_t)
 
@@ -199,11 +264,8 @@ def etl_operatori():
 # Estrazione
     lista_operatori = []
     lista_operatori = leggi_csv("lista_operatori.csv")
-
 # Trasformazione
     lista_operatori_t = trasforma_operatori(lista_operatori)
-
-
 # Caricamento
     carica_tab("OPERATORE", carica_tab_operatori, lista_operatori_t)
 
@@ -215,37 +277,30 @@ def etl_richieste():
 # Estrazione
     lista_richieste = []
     lista_richieste = leggi_csv("lista_richieste.csv")
-
 # Trasformazione
-
-
+    lista_richieste_t = trasforma_richieste(lista_richieste)
 # Caricamento
 
 
-
+## Main
+if __name__ == "__main__":
+    try:
 
 # Lo script etl deve essere necessariamente lanciato dopo db_init e crea_random_csv
 # db_inid crea il db petcarens.db mentre crea_radom_csv crea la directory csv con i file al suo interno
 # Controllo di esistenza di entrambe le directory
-if not os.path.exists("db/petcarens.db"):
-    print("Errore: il db 'db/petcarens.db' non esiste. Eseguire prima script db_init.py")
-    sys.exit()
+        if not os.path.exists("db/petcarens.db"):
+            print("Errore: il db 'db/petcarens.db' non esiste. Eseguire prima script db_init.py")
+            sys.exit()
 
-if not os.path.exists("csv"):
-    print("Errore: la directory 'csv' non esiste. Eseguire prima script crea_random_csv.py")
-    sys.exit()
+        if not os.path.exists("csv"):
+            print("Errore: la directory 'csv' non esiste. Eseguire prima script crea_random_csv.py")
+            sys.exit()
 
-
-
-
-
-# Main
-
-if __name__ == "__main__":
-    try:
         etl_clienti()
         etl_fornitori()
         etl_operatori()
         etl_richieste()
+
     except Exception as errore:
-        print(f"Errore ETL: {errore}")
+        print(f"Errore durante pipeline ETL: {errore}")

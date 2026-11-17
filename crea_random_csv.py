@@ -234,6 +234,8 @@ def crea_richieste(n, clienti, fornitori, operatori):
         dati_categoria = lista_categorie[tipo_richiesta]
         t_erogazione_min, t_erogazione_max = dati_categoria["tempo_erogazione"]
         tempo_erogazione = random.randint(t_erogazione_min, t_erogazione_max)
+        costo_orario = fornitore["COSTO_ORARIO"]
+        importo_fornitore = ( costo_orario / 60 ) * tempo_erogazione
 
         # Generazione data casuale con più probabilità negli orari lavorativi per il cliente (9-18)
         # Nessuna richiesta tra le 22 e le 6 del mattino
@@ -275,7 +277,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
             "DATA" : data,
             "ORA" : ora,
             "TIPO_RICHIESTA" : tipo_richiesta,
-            #"IMPORTO_FORNITORE" :  # L'importo fornitore verrà calcolato nello script ETL in base al costo_orario del fornitore scelto
+            "IMPORTO_FORNITORE" :  importo_fornitore,
             # "RICAVO" : "", # Il ricavo verrà calcolato nello script ETL come % dell'importo pagato
             "TEMPO_EROGAZIONE" : tempo_erogazione,
             "STATO_RICHIESTA" : stato_richiesta
@@ -286,7 +288,8 @@ def crea_richieste(n, clienti, fornitori, operatori):
 
 
 ## Main
-clienti_creati = crea_clienti(450)
-fornitori_creati = crea_fornitori(300)
-operatori_creati = crea_operatori(300)
-crea_richieste(600, clienti_creati, fornitori_creati, operatori_creati)
+if __name__ == "__main__":
+    clienti_creati = crea_clienti(450)
+    fornitori_creati = crea_fornitori(300)
+    operatori_creati = crea_operatori(300)
+    crea_richieste(600, clienti_creati, fornitori_creati, operatori_creati)
