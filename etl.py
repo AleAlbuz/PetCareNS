@@ -25,18 +25,23 @@ carica_tab_operatori = """ INSERT INTO OPERATORE (
                     VALUES(?,?,?)
                    """
 
+# Tabella tempo
+carica_tab_tempo = """ INSERT INTO TEMPO (
+                    ID_TEMPO, DATA, GIORNO, MESE, ANNO, GIORNO_SETTIMANA)
+                    VALUES(?,?,?,?,?,?)
+                   """
 
 
 # GIORNO_SETTIMANA
-lista_giorni = [ 
-    "Lunedì",
-    "Martedì",
-    "Mercoledì",
-    "Giovedì",
-    "Venerdì",
-    "Sabato",
-    "Domenica"
-]
+lista_giorni = { 
+    1 : "Lunedì",
+    2 : "Martedì",
+    3 : "Mercoledì",
+    4 : "Giovedì",
+    5 : "Venerdì",
+    6 : "Sabato",
+    7 : "Domenica"
+}
 
 
 def leggi_csv(filename):
@@ -101,6 +106,20 @@ def check_numero_int(numero_in):
     except ValueError:
         return "Errore: numero " + f"{numero_in}" + " non intero"
     
+
+def get_date_richieste(richieste_in):
+    # Creazione set univoco di data
+    set_date = set()
+
+    for richiesta in richieste_in:
+        data_string = richiesta.get("DATA")
+        # Rimozione eventuali spazi
+        data = check_data(data_string)
+        set_date.add(data)
+    
+    # Sort delle date
+    set_date = sorted(set_date)
+
 
 def trasforma_clienti(clienti_in):
     # ID_CLIENTE, ZONA, DATA_ISCRIZIONE
@@ -174,6 +193,33 @@ def trasforma_operatori(operatori_in):
         })
 
     return operatori_out
+
+
+def trasforma_tempo(tempo_in):
+    #ID_TEMPO, DATA, GIORNO, MESE, ANNO, GIORNO_SETTIMANA
+    tempo_out = []
+
+    for tempo in tempo_in:
+        id_tempo_out = "T_" + tempo.strftime("%Y%m%d")
+        data_out = tempo
+        giorno_out = tempo.day()
+        mese_out = tempo.month
+        anno_out = tempo.year
+
+        key_giorno = tempo.isoweekday()
+        giorno_settimana_out = lista_giorni[key_giorno]
+
+        tempo_out.append({
+            "ID_TEMPO" : id_tempo_out,
+            "DATA" : data_out,
+            "GIORNO" : giorno_out,
+            "MESE" : mese_out,
+            "ANNO" : anno_out,
+            "GIORNO_SETTIMANA" : giorno_settimana_out
+        })
+
+    return tempo_out
+    
 
 def get_id_tempo(richiesta_in):
     id_tempo_out = ""
@@ -260,19 +306,31 @@ def etl_fornitori():
 def etl_operatori():
     # ETL operatori
     print("Avvio ETL per Operatori")
-
-# Estrazione
+    # Estrazione
     lista_operatori = []
     lista_operatori = leggi_csv("lista_operatori.csv")
-# Trasformazione
+    # Trasformazione
     lista_operatori_t = trasforma_operatori(lista_operatori)
-# Caricamento
+    # Caricamento
     carica_tab("OPERATORE", carica_tab_operatori, lista_operatori_t)
 
+def etl_tempo(richieste_in):
+    # ETL tempo
+    print("Avvio ETL Tempo")
+    # Estrazione
+    lista_tempo = get_date_richieste(richieste_in)
+    # Trasformazione
+    lista_tempo_t = trasforma_tempo(lista_tempo)
+    # Caricamento
+    carica_tab("TEMPO", carica_tab_tempo, lista_tempo_t)
+    
 
 def etl_richieste():
     # ETL richieste
     print("Avvio ETL per Richieste")
+
+    # Avvia ETL tempo per mappare tutti gli ID_TEMPO
+    etl_tempo()
 
 # Estrazione
     lista_richieste = []
