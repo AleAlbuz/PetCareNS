@@ -85,7 +85,6 @@ if __name__ == "__main__":
 # Creazione e connesione al DB
     try:
         with sqlite3.connect("db/petcarens.db") as conn:
-            # print(f"Aperta connesione db {sqlite3.sqlite_version}.") #Solo per test
 
             cursor = conn.cursor()
 
