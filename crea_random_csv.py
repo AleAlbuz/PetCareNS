@@ -1,12 +1,8 @@
 import random # Per generazione numeri casuali
-
 import csv # Per gestione CSV
-
 import os # Per gestione directory
-
 import shutil # Per cancellazione directory
-
-from datetime import date, timedelta # Per generazione date casuali
+from datetime import datetime, date, timedelta # Per generazione date casuali
 
 
 ## Liste valori per generazione dati random
@@ -69,10 +65,11 @@ lista_stati_rich = {
 
 
 # Orizzonte temporale per iscrizione clienti e data richieste
-today = date.today()
-last_date = today - timedelta(days = 1)
-first_date = date(2025, 11, 1) 
-delta_days = (today - first_date).days
+#today = date.today()
+#last_date = today - timedelta(days = 1)
+last_date = date(2026, 11, 30)
+first_date = date(2026, 1, 1) 
+#delta_days = (today - first_date).days
 total_days = ( last_date - first_date ).days
 
 
@@ -135,9 +132,11 @@ def crea_clienti(n):
 
     for i in range(1, n + 1):
         id_cliente = "CLI_" + str(i)
+        nome_cliente =  "Nome_" + str(i) # Temporaneo
         zona = lista_zone.pop(0)
 
-        # Clienti iscritti da quando è nata la startup
+        # Clienti iscritti da quando è nata la startup fino a 5 giorni prima dell'ultima data delle richieste
+        delta_days = total_days - 5
         days_to_add = random.randint(0, delta_days)
         data_iscrizione = first_date + timedelta(days_to_add)
 
@@ -147,6 +146,7 @@ def crea_clienti(n):
 
         lista_clienti.append({
             "ID_CLIENTE" : id_cliente,
+            "NOME_CLIENTE" : nome_cliente,
             "ZONA" : zona ,
             "DATA_ISCRIZIONE" : data_iscrizione
         })
@@ -216,13 +216,14 @@ def crea_richieste(n, clienti, fornitori, operatori):
     lista_richieste = []
 
     for i in range(1, n + 1):
-    
         id_richiesta = "RIC_" + str(i)
-
         # Estrazione cliente che ha effettuato la richiesta
         cli = random.choice(clienti)
         id_cliente = cli["ID_CLIENTE"]
         zona = cli["ZONA"]
+        data_iscrizione_cli = cli["DATA_ISCRIZIONE"]
+        # Converto data_in da stringa a datetime
+        data_iscrizione_cli = datetime.strptime(data_iscrizione_cli, "%d/%m/%Y").date()
 
         # Estrazione fornitore della stessa zona ( se presente )
         fornitori_zona = []
@@ -247,9 +248,10 @@ def crea_richieste(n, clienti, fornitori, operatori):
         pesi_orario = [0, 0, 0, 0, 0, 0, 0, 1, 1, 8, 9, 10, 10, 8, 8, 10, 10, 9, 8, 6, 5, 1, 0, 0]
         range_ore = list(range(24))
 
-        #Scelta di un giorno casuale
-        add_giorni = random.randint(0, total_days)
-        data = first_date + timedelta(days = add_giorni)
+        #Scelta di un giorno casuale successivo alla data iscrizione del cliente
+        delta_days = ( last_date - data_iscrizione_cli ).days
+        add_giorni = random.randint(0, delta_days)
+        data = data_iscrizione_cli + timedelta(days = add_giorni)
         ora = random.choices( population = range_ore,
                               weights = pesi_orario,
                               k = 1
@@ -293,7 +295,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
 
 ## Main
 if __name__ == "__main__":
-    clienti_creati = crea_clienti(450)
+    clienti_creati = crea_clienti(350)
     fornitori_creati = crea_fornitori(300)
     operatori_creati = crea_operatori(300)
-    crea_richieste(600, clienti_creati, fornitori_creati, operatori_creati)
+    crea_richieste(800, clienti_creati, fornitori_creati, operatori_creati)

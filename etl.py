@@ -10,8 +10,8 @@ import re
 
 # Tabella Clienti
 carica_tab_clienti = """ INSERT INTO CLIENTE (
-                    ID_CLIENTE, ZONA, DATA_ISCRIZIONE)
-                    VALUES(:ID_CLIENTE, :ZONA, :DATA_ISCRIZIONE)
+                    ID_CLIENTE, NOME_CLIENTE, ZONA, DATA_ISCRIZIONE)
+                    VALUES(:ID_CLIENTE, :NOME_CLIENTE, :ZONA, :DATA_ISCRIZIONE)
                    """
 # Tabella fornitori
 carica_tab_fornitori = """ INSERT INTO FORNITORE (
@@ -210,11 +210,13 @@ def trasforma_clienti(clienti_in):
 
     for cliente in clienti_in:
         id_cliente_out = check_testo(cliente.get("ID_CLIENTE")) 
+        nome_cliente_out = check_testo(cliente.get("NOME_CLIENTE"))
         zona_out = check_testo(cliente.get("ZONA"))
         data_iscrizione_out = check_data(cliente.get("DATA_ISCRIZIONE"))
         
         clienti_out.append({
             "ID_CLIENTE" : id_cliente_out,
+            "NOME_CLIENTE" : nome_cliente_out,
             "ZONA" : zona_out,
             "DATA_ISCRIZIONE" : data_iscrizione_out
         })

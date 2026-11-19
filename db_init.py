@@ -9,6 +9,7 @@ import shutil # Per cancellazione directory e file
 # Tabella Clienti
 crea_tab_clienti = """ CREATE TABLE IF NOT EXISTS CLIENTE (
                     ID_CLIENTE TEXT PRIMARY KEY,
+                    NOME_CLIENTE TEXT NOT NULL,
                     ZONA TEXT NOT NULL,
                     DATA_ISCRIZIONE TEXT NOT NULL
                     )
