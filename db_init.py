@@ -1,10 +1,19 @@
 import sqlite3 
-
 import os
-
 import shutil # Per cancellazione directory e file
 
+
 ## SQL Statements per creazione tabelle
+
+# Tabella dipendenti
+crea_tab_dipendenti = """ CREATE TABLE IF NOT EXISTS DIPENDENTE (
+                    ID_DIPENDENTE TEXT PRIMARY KEY,
+                    NOME TEXT NOT NULL,
+                    COGNOME TEXT NOT NULL,
+                    ZONA TEXT NOT NULL,
+                    RUOLO TEXT NOT NULL
+                    )
+                    """
 
 # Tabella Clienti
 crea_tab_clienti = """ CREATE TABLE IF NOT EXISTS CLIENTE (
@@ -18,10 +27,13 @@ crea_tab_clienti = """ CREATE TABLE IF NOT EXISTS CLIENTE (
 # Tabella Fornitori
 crea_tab_fornitori = """ CREATE TABLE IF NOT EXISTS FORNITORE (
                         ID_FORNITORE TEXT PRIMARY KEY,
+                        ID_DIPENDENTE TEXT NOT NULL,
                         NOME TEXT NOT NULL,
                         CATEGORIA_SERVIZIO TEXT NOT NULL,
                         ZONA TEXT NOT NULL,
-                        COSTO_ORARIO REAL NOT NULL
+                        COSTO_ORARIO REAL NOT NULL,
+                        FOREIGN KEY (ID_DIPENDENTE)
+                            REFERENCES DIPENDENTE(ID_DIPENDENTE)
                      )
                      """
 
@@ -58,6 +70,7 @@ crea_tab_richieste = """ CREATE TABLE IF NOT EXISTS RICHIESTA (
                         RICAVO REAL NOT NULL,
                         TEMPO_EROGAZIONE INTEGER NOT NULL,
                         STATO_RICHIESTA TEXT NOT NULL,
+                        RATING INTEGER,
                         FOREIGN KEY (ID_CLIENTE)
                             REFERENCES CLIENTE(ID_CLIENTE),
                         FOREIGN KEY (ID_FORNITORE)
@@ -92,6 +105,8 @@ if __name__ == "__main__":
             # Necessario attivare le chiavi esterne, di default sono disabilitate
             cursor.execute("PRAGMA foreign_keys = ON")
 
+            cursor.execute(crea_tab_dipendenti)
+            print("Creata tab dipendenti")
             cursor.execute(crea_tab_clienti)
             print("Creata tab clienti")
             cursor.execute(crea_tab_fornitori)

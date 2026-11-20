@@ -6,6 +6,45 @@ from datetime import datetime, date, timedelta # Per generazione date casuali
 
 
 ## Liste valori per generazione dati random
+lista_nomi = nomi = [ 
+    "Alessandro", "Andrea", "Marco", "Matteo", "Luca",
+    "Francesco", "Davide", "Simone", "Riccardo", "Federico",
+    "Stefano", "Paolo", "Giuseppe", "Antonio", "Roberto",
+    "Enrico", "Fabio", "Daniele", "Massimo", "Nicola",
+    "Giorgio", "Christian", "Emanuele", "Leonardo", "Pietro",
+    "Giulia", "Sofia", "Martina", "Chiara", "Sara",
+    "Valentina", "Elena", "Francesca", "Alessia", "Giorgia",
+    "Federica", "Alice", "Beatrice", "Irene", "Laura",
+    "Marta", "Silvia", "Claudia", "Elisa", "Veronica",
+    "Cristina", "Anna", "Angela", "Paola", "Monica"
+]
+
+lista_cognomi = [ 
+    "Rossi", "Russo", "Ferrari", "Esposito", "Bianchi",
+    "Romano", "Colombo", "Ricci", "Marino", "Greco",
+    "Bruno", "Gallo", "Conti", "De Luca", "Costa",
+    "Giordano", "Mancini", "Rizzo", "Lombardi", "Moretti",
+    "Barbieri", "Fontana", "Santoro", "Mariani", "Rinaldi",
+    "Caruso", "Ferrara", "Galli", "Martini", "Leone",
+    "Longo", "Gentile", "Martinelli", "Vitale", "Lombardo",
+    "Serra", "Coppola", "De Santis", "D'Angelo", "Marchetti",
+    "Parisi", "Villa", "Conte", "Ferraro", "Ferri",
+    "Fabbri", "Bianco", "Bellini", "Grasso", "Valentini"
+]
+
+# RUOLO
+lista_ruoli = [  
+    "Responsabile Fornitori"
+]
+
+# Lista prefissi per fornitori
+lista_prefissi_fornitore = [
+    "Pet Service", "Pet Center", "Spazio Pet", "Mondo Pet", "Centro Pet", "Pet Point", "Pet Hub",
+    "Pet Zone", "Pet Village", "Set Services", "Pet House", "Pet Club", "Amici Animali", "Love Pelosetti",
+    "Zampa Felice", "Paw Club", "Paw Services", "Paw Pets", "Musetti Felici", "4 Zampe", "Pet & Friends",
+    "Centro Animali", "Zampe Felici", "Vet & Services", "Vet Zone", "Pet Help", "Vet Friends",
+    "Vet Specialist", "Clinica", "Spazio Cani e Gatti", "Vet House", "Servizi per Animali", "Amici a 4 Zampe"
+]
 
 # ZONA
 # Città italiane più popolose secondo Wikipedia
@@ -36,24 +75,17 @@ lista_pesata_citta = {
 # CATEGORIA_SERVIZIO
 # Con range di importi e tempistiche per categoria
 lista_categorie = { 
-    "Toilettatura" :            {"costo_orario" : (30.0, 60.0), "tempo_erogazione" : (40, 80)},
-    "Visita veterinaria" :      {"costo_orario" : (50.0, 90.0), "tempo_erogazione" : (20, 45)},
-    "Cat sitting" :             {"costo_orario" : (15.0, 60.0), "tempo_erogazione" : (60, 240)},
-    "Dog walking" :             {"costo_orario" : (20.0, 80.0), "tempo_erogazione" : (25, 100)},
-    "Visita comportamentale" :  {"costo_orario" : (70.0, 100.0), "tempo_erogazione" : (60, 90)},
-    "Visita nutrizionistica" :  {"costo_orario" : (60.0, 90.0), "tempo_erogazione" : (30, 60)}
+    "Toilettatura" :            {"costo_orario" : (50.0, 80.0),  "tempo_erogazione" : (60, 80)},
+    "Visita veterinaria" :      {"costo_orario" : (50.0, 100.0), "tempo_erogazione" : (30, 60)},
+    "Cat sitting" :             {"costo_orario" : (20.0, 40.0),  "tempo_erogazione" : (60, 480)},
+    "Dog walking" :             {"costo_orario" : (20.0, 40.0),  "tempo_erogazione" : (30, 60)},
+    "Visita comportamentale" :  {"costo_orario" : (100.0, 150.0), "tempo_erogazione" : (60, 90)},
+    "Visita nutrizionistica" :  {"costo_orario" : (100.0, 150.0), "tempo_erogazione" : (40, 60)}
 }
 
 # NOME (fornitore)
 # Da implementare
 
-# TIPO_ATTIVITA
-lista_att_oper = [  
-    "Customer Care",
-    "Responsabile Fornitori",
-    "Responsabile Pagamenti",
-    "Gestione richieste"
-]
 
 # STATO
 lista_stati_rich = { 
@@ -68,7 +100,7 @@ lista_stati_rich = {
 #today = date.today()
 #last_date = today - timedelta(days = 1)
 last_date = date(2026, 11, 30)
-first_date = date(2026, 1, 1) 
+first_date = date(2025, 8, 1) 
 #delta_days = (today - first_date).days
 total_days = ( last_date - first_date ).days
 
@@ -124,6 +156,33 @@ def crea_lista_zone(n):
     return lista_zone
 
 
+# Creazione dipendenti
+def crea_dipendenti():
+    lista_dipendenti = []
+
+    # Per semplicità 1 dipendente per ogni zona
+    n = len(lista_pesata_citta)
+    lista_zone = crea_lista_zone(n)
+
+    for i in range(1, n + 1):
+        id_dipendente = "DIP_" + str(i)
+        nome = random.choice(lista_nomi)
+        cognome = random.choice(lista_cognomi)
+        zona = lista_zone.pop(0)
+        ruolo = random.choice(lista_ruoli) # Solo responsabile fornitori
+
+        lista_dipendenti.append({
+            "ID_DIPENDENTE" : id_dipendente,
+            "NOME" : nome,
+            "COGNOME" : cognome,
+            "ZONA" : zona,
+            "RUOLO" : ruolo
+        })
+    
+    crea_csv("lista_dipendenti.csv", lista_dipendenti[0].keys(), lista_dipendenti)   
+    return lista_dipendenti
+
+
 # Creazione lista clienti
 def crea_clienti(n):
     # ID_CLIENTE, ZONA, DATA_ISCRIZIONE
@@ -132,7 +191,9 @@ def crea_clienti(n):
 
     for i in range(1, n + 1):
         id_cliente = "CLI_" + str(i)
-        nome_cliente =  "Nome_" + str(i) # Temporaneo
+        nome = random.choice(lista_nomi)
+        cognome = random.choice(lista_cognomi)
+        nome_cliente = f"{nome} {cognome}"
         zona = lista_zone.pop(0)
 
         # Clienti iscritti da quando è nata la startup fino a 5 giorni prima dell'ultima data delle richieste
@@ -156,17 +217,22 @@ def crea_clienti(n):
     return lista_clienti
 
 # Creazione lista fornitori
-def crea_fornitori(n):
+def crea_fornitori(n, dipendenti_in):
     # ID_FORNITORE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO
     lista_fornitori = []
     lista_zone = crea_lista_zone(n)
 
     for i in range(1, n +1):
         id_fornitore = "FORN_" + str(i)
-        nome =  "Nome_" + str(i) # Temporaneo
+        prefisso = random.choice(lista_prefissi_fornitore)
+        cognome = random.choice(lista_cognomi)
+        nome = f"{prefisso} {cognome}"
         categoria_servizio = random.choice(list(lista_categorie.keys()))
 
         zona = lista_zone.pop(0)
+        # Recupera il dipendente della zona
+        dipendente = [d for d in dipendenti_in if d["ZONA"] == zona][0]
+        id_dipendente = dipendente["ID_DIPENDENTE"]
 
         # Calcolo costo orario
         dati_categoria = lista_categorie[categoria_servizio]
@@ -175,6 +241,7 @@ def crea_fornitori(n):
 
         lista_fornitori.append({
             "ID_FORNITORE" : id_fornitore,
+            "ID_DIPENDENTE" : id_dipendente,
             "NOME" : nome,
             "CATEGORIA_SERVIZIO" : categoria_servizio,
             "ZONA" : zona, 
@@ -194,7 +261,7 @@ def crea_operatori(n):
 
     for i in range(1, n +1):
         id_operatore = "OPER_" + str(i)
-        tipo_attivita = random.choice(lista_att_oper)
+        tipo_attivita = random.choice(list(lista_categorie.keys()))
 
         zona = lista_zone.pop(0)
 
@@ -215,6 +282,16 @@ def crea_richieste(n, clienti, fornitori, operatori):
     # DATA, ORA, TIPO_RICHIESTA, IMPORTO_FORNITORE, RICAVO, TEMPO_EROGAZIONE, STATO_RICHIESTA
     lista_richieste = []
 
+    # Generazione data casuale con più probabilità negli orari lavorativi per il cliente (9-18)
+    # Nessuna richiesta tra le 22 e le 6 del mattino
+                # 00 01 02 03 04 05 06 07 08 09 10  11  12 13 14  15  16 17 18 19 20 21 22 23 
+    pesi_orario = [0, 0, 0, 0, 0, 0, 0, 1, 1, 8, 9, 10, 10, 8, 8, 10, 10, 9, 8, 6, 5, 1, 0, 0]
+    range_ore = list(range(24))
+
+    # RATING RICHIESTE
+    lista_rating = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    lista_pesi_rating = [ 1, 1, 1, 1, 2, 8, 10, 15, 20, 7]
+
     for i in range(1, n + 1):
         id_richiesta = "RIC_" + str(i)
         # Estrazione cliente che ha effettuato la richiesta
@@ -225,7 +302,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
         # Converto data_in da stringa a datetime
         data_iscrizione_cli = datetime.strptime(data_iscrizione_cli, "%d/%m/%Y").date()
 
-        # Estrazione fornitore della stessa zona ( se presente )
+        # Estrazione fornitore della stessa zona
         fornitori_zona = []
         for forn in fornitori:
             if forn["ZONA"] == zona:
@@ -242,11 +319,6 @@ def crea_richieste(n, clienti, fornitori, operatori):
         costo_orario = fornitore["COSTO_ORARIO"]
         importo_fornitore = round(( costo_orario / 60 ) * tempo_erogazione)
 
-        # Generazione data casuale con più probabilità negli orari lavorativi per il cliente (9-18)
-        # Nessuna richiesta tra le 22 e le 6 del mattino
-                    # 00 01 02 03 04 05 06 07 08 09 10  11  12 13 14  15  16 17 18 19 20 21 22 23 
-        pesi_orario = [0, 0, 0, 0, 0, 0, 0, 1, 1, 8, 9, 10, 10, 8, 8, 10, 10, 9, 8, 6, 5, 1, 0, 0]
-        range_ore = list(range(24))
 
         #Scelta di un giorno casuale successivo alla data iscrizione del cliente
         delta_days = ( last_date - data_iscrizione_cli ).days
@@ -261,7 +333,7 @@ def crea_richieste(n, clienti, fornitori, operatori):
         # in modo che lo script ETL possa pulirla e salvarla in tabella nel formato corretto
         data = data.strftime("%d/%m/%Y")
 
-        # Estrazione operatori della stessa zona (se presente )
+        # Estrazione operatori della stessa zona
         operatori_zona = []
         for oper in operatori:
             if oper["ZONA"] == zona:
@@ -273,6 +345,11 @@ def crea_richieste(n, clienti, fornitori, operatori):
         stati = list(lista_stati_rich.keys())
         pesi_stati = list(lista_stati_rich.values())
         stato_richiesta = random.choices(stati, weights = pesi_stati, k = 1)[0]
+
+        rating = 0
+        if stato_richiesta == "Elaborata":
+            rating = random.choices(lista_rating, weights = lista_pesi_rating, k = 1 )[0]
+  
 
         lista_richieste.append({
             "ID_RICHIESTA" : id_richiesta,
@@ -286,7 +363,8 @@ def crea_richieste(n, clienti, fornitori, operatori):
             "IMPORTO_FORNITORE" :  importo_fornitore,
             # "RICAVO" : "", # Il ricavo verrà calcolato nello script ETL come % dell'importo pagato
             "TEMPO_EROGAZIONE" : tempo_erogazione,
-            "STATO_RICHIESTA" : stato_richiesta
+            "STATO_RICHIESTA" : stato_richiesta,
+            "RATING" : rating
         })
 
     crea_csv("lista_richieste.csv", lista_richieste[0].keys(), lista_richieste)
@@ -295,7 +373,8 @@ def crea_richieste(n, clienti, fornitori, operatori):
 
 ## Main
 if __name__ == "__main__":
+    dipendenti_creati = crea_dipendenti()
     clienti_creati = crea_clienti(350)
-    fornitori_creati = crea_fornitori(300)
+    fornitori_creati = crea_fornitori(300, dipendenti_creati)
     operatori_creati = crea_operatori(300)
-    crea_richieste(800, clienti_creati, fornitori_creati, operatori_creati)
+    crea_richieste(2500, clienti_creati, fornitori_creati, operatori_creati)

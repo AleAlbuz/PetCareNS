@@ -8,6 +8,12 @@ import re
 
 ## SQL Statements per caricamento tabelle
 
+# Tabella dipendenti
+carica_tab_dipendenti = """ INSERT INTO DIPENDENTE (
+                    ID_DIPENDENTE, NOME, COGNOME, ZONA, RUOLO)
+                    VALUES(:ID_DIPENDENTE, :NOME, :COGNOME, :ZONA, :RUOLO)
+"""
+
 # Tabella Clienti
 carica_tab_clienti = """ INSERT INTO CLIENTE (
                     ID_CLIENTE, NOME_CLIENTE, ZONA, DATA_ISCRIZIONE)
@@ -15,8 +21,8 @@ carica_tab_clienti = """ INSERT INTO CLIENTE (
                    """
 # Tabella fornitori
 carica_tab_fornitori = """ INSERT INTO FORNITORE (
-                    ID_FORNITORE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO)
-                    VALUES(:ID_FORNITORE, :NOME, :CATEGORIA_SERVIZIO, :ZONA, :COSTO_ORARIO)
+                    ID_FORNITORE, ID_DIPENDENTE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO)
+                    VALUES(:ID_FORNITORE, :ID_DIPENDENTE, :NOME, :CATEGORIA_SERVIZIO, :ZONA, :COSTO_ORARIO)
                    """
 
 # Tabella operatori
@@ -34,9 +40,9 @@ carica_tab_tempo = """ INSERT INTO TEMPO (
 # Tabella richiesta
 carica_tab_richiesta = """ INSERT INTO RICHIESTA (
                     ID_RICHIESTA, ID_CLIENTE, ID_FORNITORE, ID_OPERATORE, ID_TEMPO, 
-                    DATA, ORA, TIPO_RICHIESTA, IMPORTO_FORNITORE, RICAVO, TEMPO_EROGAZIONE, STATO_RICHIESTA)
+                    DATA, ORA, TIPO_RICHIESTA, IMPORTO_FORNITORE, RICAVO, TEMPO_EROGAZIONE, STATO_RICHIESTA, RATING)
                     VALUES(:ID_RICHIESTA, :ID_CLIENTE, :ID_FORNITORE, :ID_OPERATORE, :ID_TEMPO, 
-                    :DATA, :ORA, :TIPO_RICHIESTA, :IMPORTO_FORNITORE, :RICAVO, :TEMPO_EROGAZIONE, :STATO_RICHIESTA)
+                    :DATA, :ORA, :TIPO_RICHIESTA, :IMPORTO_FORNITORE, :RICAVO, :TEMPO_EROGAZIONE, :STATO_RICHIESTA, :RATING)
                    """
 
 
@@ -204,6 +210,27 @@ def get_ricavo(importo_fornitore_in):
 
 ## Trasformazione - INIT
 
+def trasforma_dipendenti(dipendenti_in):
+    # ID_DIPENDENTE, NOME, COGNOME, ZONA, RUOLO
+    dipendenti_out = []
+
+    for dipendente in dipendenti_in:
+        id_dipendente_out = check_testo(dipendente.get("ID_DIPENDENTE")) 
+        nome_out = check_testo(dipendente.get("NOME"))
+        cognome_out = check_testo(dipendente.get("COGNOME"))
+        zona_out = check_testo(dipendente.get("ZONA"))
+        ruolo_out = check_testo(dipendente.get("RUOLO"))
+        
+        dipendenti_out.append({
+            "ID_DIPENDENTE" : id_dipendente_out,
+            "NOME" : nome_out,
+            "COGNOME" : cognome_out,
+            "ZONA" : zona_out,
+            "RUOLO" : ruolo_out
+        })
+        
+    return dipendenti_out
+
 def trasforma_clienti(clienti_in):
     # ID_CLIENTE, ZONA, DATA_ISCRIZIONE
     clienti_out = []
@@ -225,18 +252,20 @@ def trasforma_clienti(clienti_in):
 
     
 def trasforma_fornitori(fornitori_in):
-    # ID_FORNITORE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO
+    # ID_FORNITORE, ID_DIPENDENTE, NOME, CATEGORIA_SERVIZIO, ZONA, COSTO_ORARIO
     fornitori_out = []
 
     for fornitori in fornitori_in:
-        id_fornitore_Out = check_testo(fornitori.get("ID_FORNITORE")) 
+        id_fornitore_out = check_testo(fornitori.get("ID_FORNITORE")) 
+        id_dipendente_out = check_testo(fornitori.get("ID_DIPENDENTE")) 
         nome_out = check_testo(fornitori.get("NOME")) 
         categoria_servizio_out = check_testo(fornitori.get("CATEGORIA_SERVIZIO")) 
         zona_out = check_testo(fornitori.get("ZONA"))
         costo_orario_out = check_numero_real(fornitori.get("COSTO_ORARIO"))
 
         fornitori_out.append({
-            "ID_FORNITORE" : id_fornitore_Out,
+            "ID_FORNITORE" : id_fornitore_out,
+            "ID_DIPENDENTE" : id_dipendente_out,
             "NOME" : nome_out,
             "CATEGORIA_SERVIZIO" : categoria_servizio_out,
             "ZONA" : zona_out,
@@ -292,7 +321,7 @@ def trasforma_tempo(tempo_in):
 
 def trasforma_richieste(richieste_in):
 # "ID_RICHIESTA", "ID_CLIENTE", "ID_FORNITORE", "ID_OPERATORE", "ID_TEMPO", "DATA",
-# "ORA", "TIPO_RICHIESTA", "IMPORTO_FORNITORE", "RICAVO", "TEMPO_EROGAZIONE", "STATO_RICHIESTA"
+# "ORA", "TIPO_RICHIESTA", "IMPORTO_FORNITORE", "RICAVO", "TEMPO_EROGAZIONE", "STATO_RICHIESTA", "RATING"
     richieste_out = []
 
     # Esegui prima etl TEMPO per popolare prima la tabella TEMPO e creare gli ID_TEMPO
@@ -316,6 +345,7 @@ def trasforma_richieste(richieste_in):
         ricavo_out = get_ricavo(importo_fornitore_out)
         tempo_erogazione_out = check_numero_int(richiesta.get("TEMPO_EROGAZIONE"))
         stato_richiesta_out = check_testo(richiesta.get("STATO_RICHIESTA"))
+        rating = check_numero_int(richiesta.get("RATING"))
         
         richieste_out.append({
             "ID_RICHIESTA" : id_richiesta_out,
@@ -329,7 +359,8 @@ def trasforma_richieste(richieste_in):
             "IMPORTO_FORNITORE" : importo_fornitore_out,
             "RICAVO" : ricavo_out,
             "TEMPO_EROGAZIONE" : tempo_erogazione_out,
-            "STATO_RICHIESTA" : stato_richiesta_out
+            "STATO_RICHIESTA" : stato_richiesta_out,
+            "RATING" : rating
         })
 
     return richieste_out
@@ -338,6 +369,19 @@ def trasforma_richieste(richieste_in):
 
 
 ## Start ETL - INIT
+def etl_dipendenti():
+    # ETL Dipendenti
+    print("Avvio ETL per dipendenti")
+
+    # Estrazione
+    lista_dipendenti = []
+    lista_dipendenti = leggi_csv("lista_dipendenti.csv")
+
+    # Trasformazione
+    lista_dipendenti_t = trasforma_dipendenti(lista_dipendenti)
+
+# Caricamento
+    carica_tab("DIPENDENTE", carica_tab_dipendenti, lista_dipendenti_t)
 
 def etl_clienti():
     # ETL clienti
@@ -420,6 +464,7 @@ if __name__ == "__main__":
             print("Errore: la directory 'csv' non esiste. Eseguire prima script crea_random_csv.py")
             sys.exit()
 
+        etl_dipendenti()
         etl_clienti()
         etl_fornitori()
         etl_operatori()
