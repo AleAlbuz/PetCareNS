@@ -117,19 +117,7 @@ def crea_csv(nome_file, lista_labels, lista_records):
         writer.writeheader()
         writer.writerows(lista_records)
 
-
-random.seed(24) # Numero di partenza sempre uguale per generare sempre gli stessi dati
-
-
-# Inizializzazione directory csv (cancellazione + creazione)
-if os.path.exists("csv"):
-    shutil.rmtree("csv") # Cancella la directory ed il suo contenuto
-
-try:
-    os.mkdir("csv") # Crea directory, se esiste da exception
-    print("Creata directory csv")
-except FileExistsError:
-    print("La directory csv esiste già, nessuna creazione")
+    print(f"Creato /csv/{nome_file}")
 
 
 ## Creazione dati random
@@ -179,7 +167,7 @@ def crea_dipendenti():
             "RUOLO" : ruolo
         })
     
-    crea_csv("lista_dipendenti.csv", lista_dipendenti[0].keys(), lista_dipendenti)   
+    crea_csv("lista_dipendenti.csv", lista_dipendenti[0].keys(), lista_dipendenti)  
     return lista_dipendenti
 
 
@@ -380,6 +368,21 @@ def crea_richieste(n, clienti, fornitori, operatori):
 
 ## Main
 if __name__ == "__main__":
+
+    random.seed(24) # Numero di partenza sempre uguale per generare sempre gli stessi dati
+
+
+    # Inizializzazione directory csv (cancellazione + creazione)
+    if os.path.exists("csv"):
+        shutil.rmtree("csv") # Cancella la directory ed il suo contenuto
+
+    try:
+        os.mkdir("csv") # Crea directory, se esiste da exception
+        print("Creata directory csv")
+    except FileExistsError:
+        print("La directory csv esiste già, nessuna creazione")
+
+
     dipendenti_creati = crea_dipendenti()
     clienti_creati = crea_clienti(350)
     fornitori_creati = crea_fornitori(300, dipendenti_creati)

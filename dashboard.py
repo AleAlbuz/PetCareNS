@@ -212,7 +212,7 @@ st.area_chart(df_ric_mese, x = "DATA", y = "RICAVO", color = "#00FF1E")
 col_top_f, col_top_o = st.columns(2)
 
 with col_top_f:
-# Classifica dei primi cinque fornitori per incassi 
+# Classifica dei primi dieci fornitori per incassi 
     st.subheader("Top 10 fornitori per incassi")
 
     top_fornitori = df_db_filtered.groupby(["ID_FORNITORE", "NOME_FORNITORE"])
