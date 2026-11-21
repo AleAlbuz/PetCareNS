@@ -367,6 +367,13 @@ def crea_richieste(n, clienti, fornitori, operatori):
             "RATING" : rating
         })
 
+    # Inserimento 20 richieste duplicate che verranno escluse dalla pipeline ETL
+    richieste_duplicate = random.choices(lista_richieste, k = 20)
+    for r in richieste_duplicate:
+        lista_richieste.append(r.copy())
+    
+    random.shuffle(lista_richieste)
+
     crea_csv("lista_richieste.csv", lista_richieste[0].keys(), lista_richieste)
 
 

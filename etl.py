@@ -123,8 +123,8 @@ def check_data(data_in):
     # Converto data_in da stringa a datetime
     data_in_datetime = datetime.strptime(data_in, "%d/%m/%Y")
     
-    #data_out = data_in_datetime.strftime("%Y-%m-%d")
-    data_out = data_in_datetime.date()
+    data_out = data_in_datetime.strftime("%Y-%m-%d")
+    #data_out = data_in_datetime.date()
 
 
     return data_out
@@ -298,13 +298,15 @@ def trasforma_tempo(tempo_in):
     tempo_out = []
 
     for tempo in tempo_in:
-        id_tempo_out = "T_" + tempo.strftime("%Y%m%d")
-        data_out = tempo
-        giorno_out = tempo.day
-        mese_out = tempo.month
-        anno_out = tempo.year
+        # Conversione tempo in datetime
+        tempo_dt = datetime.strptime(tempo, "%Y-%m-%d")
+        id_tempo_out = "T_" + tempo_dt.strftime("%Y%m%d")
+        data_out = tempo # Stringa
+        giorno_out = tempo_dt.day
+        mese_out = tempo_dt.month
+        anno_out = tempo_dt.year
 
-        key_giorno = tempo.isoweekday()
+        key_giorno = tempo_dt.isoweekday()
         giorno_settimana_out = lista_giorni[key_giorno]
 
         tempo_out.append({
@@ -323,45 +325,58 @@ def trasforma_richieste(richieste_in):
 # "ID_RICHIESTA", "ID_CLIENTE", "ID_FORNITORE", "ID_OPERATORE", "ID_TEMPO", "DATA",
 # "ORA", "TIPO_RICHIESTA", "IMPORTO_FORNITORE", "RICAVO", "TEMPO_EROGAZIONE", "STATO_RICHIESTA", "RATING"
     richieste_out = []
+    id_richieste_elaborate = set()
+
+    tot_duplicati = 0
 
     # Esegui prima etl TEMPO per popolare prima la tabella TEMPO e creare gli ID_TEMPO
     etl_tempo(richieste_in)
-    
 
     for richiesta in richieste_in:
         # ID
         id_richiesta_out = check_testo(richiesta.get("ID_RICHIESTA"))
-        id_cliente_out = check_testo(richiesta.get("ID_CLIENTE"))
-        id_fornitore_out = check_testo(richiesta.get("ID_FORNITORE"))
-        id_operatore_out = check_testo(richiesta.get("ID_OPERATORE"))
 
-        # Gestione tempo
-        data_out = check_data(richiesta.get("DATA"))
-        ora_out = check_testo(richiesta.get("ORA"))
-        id_tempo_out = get_id_tempo(data_out)
+        if id_richiesta_out in id_richieste_elaborate:
+            # Richiesta già elaborata
+            tot_duplicati = tot_duplicati + 1
+        else:
+            # Inserimento id richiesta nel set di quelle già elaborate
+            id_richieste_elaborate.add(id_richiesta_out)
+            id_cliente_out = check_testo(richiesta.get("ID_CLIENTE"))
+            id_fornitore_out = check_testo(richiesta.get("ID_FORNITORE"))
+            id_operatore_out = check_testo(richiesta.get("ID_OPERATORE"))
 
-        tipo_richiesta_out = check_testo(richiesta.get("TIPO_RICHIESTA"))
-        importo_fornitore_out = check_numero_real(richiesta.get("IMPORTO_FORNITORE"))
-        ricavo_out = get_ricavo(importo_fornitore_out)
-        tempo_erogazione_out = check_numero_int(richiesta.get("TEMPO_EROGAZIONE"))
-        stato_richiesta_out = check_testo(richiesta.get("STATO_RICHIESTA"))
-        rating = check_numero_int(richiesta.get("RATING"))
-        
-        richieste_out.append({
-            "ID_RICHIESTA" : id_richiesta_out,
-            "ID_CLIENTE" : id_cliente_out,
-            "ID_FORNITORE" : id_fornitore_out,
-            "ID_OPERATORE" : id_operatore_out,
-            "ID_TEMPO" : id_tempo_out,
-            "DATA" : data_out,
-            "ORA" : ora_out,
-            "TIPO_RICHIESTA" : tipo_richiesta_out, 	
-            "IMPORTO_FORNITORE" : importo_fornitore_out,
-            "RICAVO" : ricavo_out,
-            "TEMPO_EROGAZIONE" : tempo_erogazione_out,
-            "STATO_RICHIESTA" : stato_richiesta_out,
-            "RATING" : rating
-        })
+            # Gestione tempo
+            data_out = check_data(richiesta.get("DATA"))
+            ora_out = check_testo(richiesta.get("ORA"))
+            id_tempo_out = get_id_tempo(data_out)
+
+            tipo_richiesta_out = check_testo(richiesta.get("TIPO_RICHIESTA"))
+            importo_fornitore_out = check_numero_real(richiesta.get("IMPORTO_FORNITORE"))
+            ricavo_out = get_ricavo(importo_fornitore_out)
+            tempo_erogazione_out = check_numero_int(richiesta.get("TEMPO_EROGAZIONE"))
+            stato_richiesta_out = check_testo(richiesta.get("STATO_RICHIESTA"))
+            rating = check_numero_int(richiesta.get("RATING"))
+            
+            richieste_out.append({
+                "ID_RICHIESTA" : id_richiesta_out,
+                "ID_CLIENTE" : id_cliente_out,
+                "ID_FORNITORE" : id_fornitore_out,
+                "ID_OPERATORE" : id_operatore_out,
+                "ID_TEMPO" : id_tempo_out,
+                "DATA" : data_out,
+                "ORA" : ora_out,
+                "TIPO_RICHIESTA" : tipo_richiesta_out, 	
+                "IMPORTO_FORNITORE" : importo_fornitore_out,
+                "RICAVO" : ricavo_out,
+                "TEMPO_EROGAZIONE" : tempo_erogazione_out,
+                "STATO_RICHIESTA" : stato_richiesta_out,
+                "RATING" : rating
+            })
+
+    if tot_duplicati > 0:
+        print(f"Sono state rilevate e scartate {tot_duplicati} richieste duplicate")
+
 
     return richieste_out
 
